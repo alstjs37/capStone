@@ -46,7 +46,7 @@ def save_coordinates():
         path_coordinates.append([point['y'], point['x']])
 
     # 최단 경로 길이 출력
-    print(f"Shortest path length: {shortest_path_length} meters")
+    print(f"\n[SUCCESS] Shortest path length: {shortest_path_length} meters\n")
 
     return jsonify({'status': 'success', 'path': path_coordinates, 'length': shortest_path_length})
 
