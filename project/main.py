@@ -1,6 +1,8 @@
 from flask import Flask, request, render_template
+from _kafka.web_producer import Producer
 
 app = Flask(__name__)
+producer = Producer()
 
 @app.route('/')
 def index():
@@ -17,6 +19,8 @@ def result():
         result_message = f'입력된 정수값: {user_input_int}'
     except ValueError:
         result_message = '올바른 정수값을 입력하세요.'
+    else:
+        producer.publish_to_kafka(user_input_int)
 
     return render_template('result.html', message=result_message)
 
