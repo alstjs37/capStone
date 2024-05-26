@@ -2,6 +2,12 @@ a {
     text-decoration-line: none;
 }
 
+#submit-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
 #submit {
     --bg: #e74c3c;
     --text-color: #fff;
@@ -70,4 +76,10 @@ a {
   .btn:hover .sparkle {
     fill: white;
     transform: scale(1.2);
-  } 
+  }
+
+#pathLength-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}

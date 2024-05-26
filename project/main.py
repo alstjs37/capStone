@@ -14,9 +14,17 @@ newYork_graph = ox.graph_from_place('New York City, New York, USA', network_type
 def index():
     return render_template('index.html')
 
-@app.route('/start')
-def map_start():
-    return render_template('map.html')
+@app.route('/about')
+def about():
+    return render_template('about.html')
+
+@app.route('/service')
+def service():
+    return render_template('service.html')
+
+@app.route('/team')
+def team():
+    return render_template('team.html')
 
 @app.route('/save_coordinates', methods=['POST'])
 def save_coordinates():
@@ -50,21 +58,5 @@ def save_coordinates():
 
     return jsonify({'status': 'success', 'path': path_coordinates, 'length': shortest_path_length})
 
-@app.route('/result', methods=['POST'])
-def result():
-    # 사용자로부터 입력 받은 값
-    user_input = request.form['number']
-
-    # 입력 받은 값이 정수인지 확인
-    try:
-        user_input_int = int(user_input)
-        result_message = f'입력된 정수값: {user_input_int}'
-    except ValueError:
-        result_message = '올바른 정수값을 입력하세요.'
-    else:
-        producer.publish_to_kafka(user_input_int)
-
-    return render_template('result.html', message=result_message)
-
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5001)
+    app.run(debug=True, host='0.0.0.0', port=5002)

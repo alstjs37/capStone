@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <!-- Basic -->
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <!-- Mobile Metas -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <!-- Site Metas -->
+  <meta name="keywords" content="" />
+  <meta name="description" content="" />
+  <meta name="author" content="" />
+  <link rel="shortcut icon" href="{{ url_for('static', filename='images/kubernetes.svg') }}" type="">
+
+  <title> SOM </title>
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.css') }}" />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css" />
+  <link href="{{ url_for('static', filename='css/font-awesome.min.css') }}" rel="stylesheet" />
+  <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet" />
+  <link href="{{ url_for('static', filename='css/responsive.css') }}" rel="stylesheet" />
+
+</head>
+
+<body class="sub_page">
+
+  <div class="hero_area">
+
+    <div class="hero_bg_box">
+      <div class="bg_img_box">
+        <img src="static/images/hero-bg.png" alt="">
+      </div>
+    </div>
+
+    <!-- header section strats -->
+    <header class="header_section">
+      <div class="container-fluid">
+        <nav class="navbar navbar-expand-lg custom_nav-container ">
+          <a class="navbar-brand" href="/">
+            <span>
+              SOM
+            </span>
+          </a>
+
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class=""> </span>
+          </button>
+
+          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav  ">
+              <li class="nav-item ">
+                <a class="nav-link" href="/">Home </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/about"> About</a>
+              </li>
+              <li class="nav-item active">
+                <a class="nav-link" href="/service">Services <span class="sr-only">(current)</span> </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/team">Team</a>
+              </li>
+            </ul>
+          </div>
+        </nav>
+      </div>
+    </header>
+    <!-- end header section -->
+  </div>
+
+
+  <!-- service section -->
+
+  <section class="service_section layout_padding">
+    <div class="service_container">
+      <div class="container ">
+        <div class="heading_container heading_center">
+          <h2>
+            Map <span>Services가 실행되는 곳</span>
+          </h2>
+          <p>
+            두 점을 클릭하고 버튼을 클릭하세요 ~~
+          </p>
+          <br><br>
+        </div>
+
+        <div id="map" style="width: 100%; height: 600px;"></div>
+        <br>
+
+        <div id="submit-container">
+            <button id="submit">Submit</button>
+        </div>
+  
+        <div id="pathLength-container">
+            <div id="pathLength"></div>
+        </div>
+
+        <script>
+            // 지도 초기화
+            var map = L.map('map').setView([40.7128, -74.0060], 12); // 뉴욕 좌표
+
+            // OSM 타일 레이어 추가
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+
+            // 출발지와 도착지 마커 변수
+            var startMarker, endMarker;
+
+            // 경로 레이어 변수
+            var routeLayer;
+
+            // 지도 클릭 이벤트 리스너
+            map.on('click', function(e) {
+                if (!startMarker) {
+                    startMarker = L.marker(e.latlng).addTo(map).bindPopup('Start').openPopup();
+                } else if (!endMarker) {
+                    endMarker = L.marker(e.latlng).addTo(map).bindPopup('End').openPopup();
+                }
+            });
+
+            // 버튼 클릭 이벤트 리스너
+            document.getElementById('submit').addEventListener('click', function() {
+                if (startMarker && endMarker) {
+                    var startCoords = startMarker.getLatLng();
+                    var endCoords = endMarker.getLatLng();
+                    var data = {
+                        start: {lat: startCoords.lat, lng: startCoords.lng},
+                        end: {lat: endCoords.lat, lng: endCoords.lng}
+                    };
+
+                    // 서버로 좌표 전송
+                    fetch('/save_coordinates', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(data)
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            // 경로의 길이 출력
+                            document.getElementById('pathLength').innerText = `\n[SUCCESS] Shortest path length: ${data.length} meters\n`;
+
+                            // 이전 경로 레이어 제거
+                            if (routeLayer) {
+                                map.removeLayer(routeLayer);
+                            }
+
+                            // 새로운 경로 레이어 추가
+                            routeLayer = L.polyline(data.path, {color: 'blue'}).addTo(map);
+                        }
+                    });
+                } else {
+                    alert('Please select both start and end points.');
+                }
+            });
+        </script>
+        
+      </div>
+    </div>
+  </section>
+
+  <!-- end service section -->
+  <script src="{{ url_for('static', filename='js/bootstrap.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/custom.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/jquery-3.4.1.min.js') }}"></script>
+</body>
+
+</html>
