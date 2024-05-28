@@ -43,6 +43,7 @@ def save_coordinates():
     # 최단 경로 계산
     shortest_path = nx.shortest_path(newYork_graph, orig_node, dest_node, weight='length')
     shortest_path_length = nx.shortest_path_length(newYork_graph, orig_node, dest_node, weight='length')
+    shortest_path_length = shortest_path_length / 1609.34
     
     # producer 통해 K8s로 보냄
     producer.publish_to_kafka(shortest_path_length)
@@ -54,7 +55,7 @@ def save_coordinates():
         path_coordinates.append([point['y'], point['x']])
 
     # 최단 경로 길이 출력
-    print(f"\n[SUCCESS] Shortest path length: {shortest_path_length} meters\n")
+    print(f"\n[SUCCESS] Shortest path length: {shortest_path_length} miles\n")
 
     return jsonify({'status': 'success', 'path': path_coordinates, 'length': shortest_path_length})
 
