@@ -96,18 +96,19 @@
         <div class="radio-div">
           <div class="radio-inputs">
             <label class="radio">
-              <input type="radio" name="option" checked="">
+              <input type="radio" name="option" value="2024" checked="">
               <span class="name">Recent 1 year</span>
             </label>
             <label class="radio">
-              <input type="radio" name="option">
+              <input type="radio" name="option" value="2023">
               <span class="name">2023</span>
             </label>
             <label class="radio">
-              <input type="radio" name="option">
+              <input type="radio" name="option" value="2022">
               <span class="name">2022</span>
             </label>
           </div>
+          <button id="applyBtn">Apply</button>
 
         </div>
 
@@ -120,6 +121,36 @@
         <div id="pathLength-container">
             <div id="pathLength"></div>
         </div>
+
+        <script>
+          function getSelectedOption() {
+            return document.querySelector('input[name="option"]:checked').value;
+            }
+
+        function submitForm() {
+            const selectedOption = getSelectedOption();
+            const data = {
+                option: selectedOption
+            };
+            fetch('/checked', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+          }
+
+          // 버튼 클릭 이벤트 리스너 등록
+          document.getElementById('applyBtn').addEventListener('click', submitForm);
+        </script>
 
         <script>
             // 지도 초기화
@@ -167,7 +198,7 @@
                     .then(data => {
                         if (data.status === 'success') {
                             // 경로의 길이 출력
-                            document.getElementById('pathLength').innerText = `\n[SUCCESS] Shortest path length: ${data.length} miles\n`;
+                            document.getElementById('pathLength').innerText = `\n[SUCCESS] Shortest path length: ${data.length} miles (using ${document.querySelector('input[name="option"]:checked').value} version)\n`;
 
                             // 이전 경로 레이어 제거
                             if (routeLayer) {

@@ -6,6 +6,7 @@ from _kafka.web_producer import Producer
 app = Flask(__name__)
 
 producer = Producer()
+input_data = []
 
 # 뉴욕시 그래프 다운로드
 newYork_graph = ox.graph_from_place('New York City, New York, USA', network_type='drive')
@@ -26,6 +27,18 @@ def service():
 def team():
     return render_template('team.html')
 
+@app.route('/checked', methods=['POST'])
+def checked():
+    data = request.get_json()
+    selected_option = data.get('option')
+    if selected_option:
+        input_data.append(selected_option)
+        print(f"\n[SUCCESS] Selected option: {selected_option}\n")
+        # 필요한 경우 이곳에 추가 처리 로직을 추가하세요.
+        return jsonify({'status': 'success', 'selected_option': selected_option})
+    else:
+        return jsonify({'status': 'error', 'message': 'No option selected'}), 400
+
 @app.route('/save_coordinates', methods=['POST'])
 def save_coordinates():
     data = request.json
@@ -45,8 +58,13 @@ def save_coordinates():
     shortest_path_length = nx.shortest_path_length(newYork_graph, orig_node, dest_node, weight='length')
     shortest_path_length = shortest_path_length / 1609.34
     
+    input_data.append(shortest_path_length)
+    version = input_data[0]
+
     # producer 통해 K8s로 보냄
-    producer.publish_to_kafka(shortest_path_length)
+    # input_data[0] = version / input_data[1] = distance(mile)
+    producer.publish_to_kafka(input_data)
+    input_data.clear()
 
     # 최단 경로의 좌표 리스트 생성
     path_coordinates = []
@@ -55,7 +73,7 @@ def save_coordinates():
         path_coordinates.append([point['y'], point['x']])
 
     # 최단 경로 길이 출력
-    print(f"\n[SUCCESS] Shortest path length: {shortest_path_length} miles\n")
+    print(f"\n[SUCCESS] Shortest path length: {shortest_path_length} miles using {version} version\n")
 
     return jsonify({'status': 'success', 'path': path_coordinates, 'length': shortest_path_length})
 

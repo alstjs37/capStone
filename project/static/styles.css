@@ -12,7 +12,7 @@ a {
   position: relative;
   display: flex;
   flex-wrap: wrap;
-  border-radius: 0.5rem;
+  border-radius: 0.1rem;
   background-color: #EEE;
   box-sizing: border-box;
   box-shadow: 0 0 0px 1px rgba(0, 0, 0, 0.06);
@@ -52,6 +52,29 @@ a {
   font-weight: 600;
 }
 
+button {
+  width: fit-content;
+  min-width: 100px;
+  height: 45px;
+  padding: 8px;
+  border-radius: 5px;
+  border: 1px solid #EEE;
+  box-shadow: 0px 0px 20px -20px;
+  cursor: pointer;
+  background-color: white;
+  transition: all 0.2s ease-in-out 0ms;
+  user-select: none;
+  font-family: 'Poppins', sans-serif;
+}
+
+button:hover {
+  background-color: #F2F2F2;
+  box-shadow: 0px 0px 20px -18px;
+}
+
+button:active {
+  transform: scale(0.95);
+}
 
 #submit-container {
   display: flex;
