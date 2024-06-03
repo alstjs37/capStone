@@ -7,6 +7,7 @@ app = Flask(__name__)
 
 producer = Producer()
 input_data = []
+version = 2024
 
 # 뉴욕시 그래프 다운로드
 newYork_graph = ox.graph_from_place('New York City, New York, USA', network_type='drive')
@@ -21,6 +22,8 @@ def about():
 
 @app.route('/service')
 def service():
+    global version
+    version = 2024
     return render_template('service.html')
 
 @app.route('/team')
@@ -32,7 +35,10 @@ def checked():
     data = request.get_json()
     selected_option = data.get('option')
     if selected_option:
-        input_data.append(selected_option)
+        # input_data.append(selected_option)
+        global version
+        version = selected_option
+
         print(f"\n[SUCCESS] Selected option: {selected_option}\n")
         # 필요한 경우 이곳에 추가 처리 로직을 추가하세요.
         return jsonify({'status': 'success', 'selected_option': selected_option})
@@ -58,11 +64,12 @@ def save_coordinates():
     shortest_path_length = nx.shortest_path_length(newYork_graph, orig_node, dest_node, weight='length')
     shortest_path_length = shortest_path_length / 1609.34
     
-    input_data.append(shortest_path_length)
-    version = input_data[0]
+    length = shortest_path_length
 
     # producer 통해 K8s로 보냄
-    # input_data[0] = version / input_data[1] = distance(mile)
+    # input_data[0] = year / input_data[1] = distance(mile)
+    input_data.append(str(version))
+    input_data.append(length)
     producer.publish_to_kafka(input_data)
     input_data.clear()
 
