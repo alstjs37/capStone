@@ -7,6 +7,7 @@ app = Flask(__name__)
 
 producer = Producer()
 input_data = []
+version = 2024
 
 # 뉴욕시 그래프 다운로드
 newYork_graph = ox.graph_from_place('New York City, New York, USA', network_type='drive')
@@ -21,6 +22,8 @@ def about():
 
 @app.route('/service')
 def service():
+    global version
+    version = 2024
     return render_template('service.html')
 
 @app.route('/team')
@@ -65,7 +68,7 @@ def save_coordinates():
 
     # producer 통해 K8s로 보냄
     # input_data[0] = year / input_data[1] = distance(mile)
-    input_data.append(version)
+    input_data.append(str(version))
     input_data.append(length)
     producer.publish_to_kafka(input_data)
     input_data.clear()
