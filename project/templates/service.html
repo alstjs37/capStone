@@ -122,6 +122,10 @@
             <div id="pathLength"></div>
         </div>
 
+        <div id="kafkaMessage-container">
+          <div id="kafkaMessage"></div>
+        </div>
+
         <script>
           function getSelectedOption() {
             return document.querySelector('input[name="option"]:checked').value;
@@ -176,6 +180,11 @@
                 }
             });
 
+            function displayKafkaMessage(message) {
+              var kafkaMessageElement = document.getElementById('kafkaMessage');
+              kafkaMessageElement.innerText = message;
+            }
+
             // 버튼 클릭 이벤트 리스너
             document.getElementById('submit').addEventListener('click', function() {
                 if (startMarker && endMarker) {
@@ -207,6 +216,13 @@
 
                             // 새로운 경로 레이어 추가
                             routeLayer = L.polyline(data.path, {color: 'blue'}).addTo(map);
+
+                            // Kafka 메시지 가져오기
+                            fetch('/get_kafka_message')
+                            .then(response => response.json())
+                            .then(data => {
+                                displayKafkaMessage(data.message);
+                            });
                         }
                     });
                 } else {

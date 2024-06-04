@@ -2,6 +2,7 @@ from flask import Flask, request, render_template, jsonify
 import osmnx as ox
 import networkx as nx
 from _kafka.web_producer import Producer
+from _kafka.web_consumer import Consumer
 
 app = Flask(__name__)
 
@@ -29,6 +30,13 @@ def service():
 @app.route('/team')
 def team():
     return render_template('team.html')
+
+@app.route('/get_kafka_message', methods=['GET'])
+def get_kafka_message():
+    consumer = Consumer()
+    message = consumer.consume_from_kafka()
+    
+    return jsonify({'message': message})
 
 @app.route('/checked', methods=['POST'])
 def checked():
