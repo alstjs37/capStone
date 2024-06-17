@@ -276,8 +276,8 @@ a:focus {
   color: #00204a;
 }
 
-.slider_section .detail-box h1 {
-  font-size: 3rem;
+.slider_section .detail-box h3 {
+  font-size: 1.7rem;
   font-weight: bold;
   text-transform: uppercase;
   margin-bottom: 15px;
